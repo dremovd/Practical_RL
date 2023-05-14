@@ -1,7 +1,7 @@
 """Auxilary files for those who wanted to solve breakout with CEM or policy gradient"""
 import numpy as np
 import gym
-from scipy.misc import imresize
+from skimage.transform import resize as imresize
 from gym.core import Wrapper
 from gym.spaces.box import Box
 
@@ -24,14 +24,15 @@ class PreprocessAtari(Wrapper):
     def reset(self):
         """resets breakout, returns initial frames"""
         self.framebuffer = np.zeros_like(self.framebuffer)
-        self.update_buffer(self.env.reset())
+        image, extra_info = self.env.reset()
+        self.update_buffer(image)
         return self.framebuffer
 
     def step(self, action):
         """plays breakout for 1 step, returns 4-frame buffer"""
-        new_img, r, done, info = self.env.step(action)
+        new_img, r, done, is_truncated, info = self.env.step(action)
         self.update_buffer(new_img)
-        return self.framebuffer, r, done, info
+        return self.framebuffer, r, done, is_truncated, info
 
     ###image processing###
 
